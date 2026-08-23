@@ -6,7 +6,7 @@ pub fn part1() {
     let mut sector_id_sum = 0;
 
     for line in input.lines() {
-        let (real, sector_id) = is_real_room(line);
+        let (real, sector_id, _) = is_real_room(line);
 
         if real {
             sector_id_sum += sector_id;
@@ -16,16 +16,30 @@ pub fn part1() {
     println!("{sector_id_sum}");
 }
 
-pub fn part2() {}
+pub fn part2() {
+    let input = read_to_string("data/day4.txt").unwrap();
 
-fn is_real_room(room: &str) -> (bool, u32) {
+    for line in input.lines() {
+        let (real, sector_id, real_name) = is_real_room(line);
+
+        if real && real_name.contains("northpole") {
+            println!("{sector_id}");
+        }
+    }
+}
+
+fn is_real_room(room: &str) -> (bool, u32, String) {
     let mut is_real = true;
     let mut sector_id = 0;
+    let mut real_name = String::new();
+
     let mut checksum = "";
 
     let mut parts = room.split('-').peekable();
 
     let mut char_frequencies = HashMap::new();
+
+    let mut working_name = String::new();
 
     while let Some(part) = parts.next() {
         if parts.peek().is_none() {
@@ -41,8 +55,29 @@ fn is_real_room(room: &str) -> (bool, u32) {
                     .entry(char)
                     .and_modify(|v| *v += 1)
                     .or_insert(1);
+
+                working_name.push(char);
+            }
+
+            working_name.push(' ');
+        }
+    }
+
+    for mut char in working_name.chars() {
+        if char == ' ' {
+            real_name.push(char);
+            continue;
+        }
+
+        for _ in 0..sector_id {
+            char = ((char as u8) + 1) as char;
+
+            if char > 'z' {
+                char = 'a';
             }
         }
+
+        real_name.push(char);
     }
 
     let mut highest_values: Vec<_> = char_frequencies.iter().map(|f| (f.0, f.1)).collect();
@@ -66,7 +101,7 @@ fn is_real_room(room: &str) -> (bool, u32) {
         }
     }
 
-    (is_real, sector_id)
+    (is_real, sector_id, real_name)
 }
 
 #[cfg(test)]
@@ -75,21 +110,29 @@ mod tests {
 
     #[test]
     fn test_1() {
-        assert_eq!((true, 123), is_real_room("aaaaa-bbb-z-y-x-123[abxyz]"));
+        let (real, sector_id, _) = is_real_room("aaaaa-bbb-z-y-x-123[abxyz]");
+        assert_eq!(true, real);
+        assert_eq!(123, sector_id);
     }
 
     #[test]
     fn test_2() {
-        assert_eq!((true, 987), is_real_room("a-b-c-d-e-f-g-h-987[abcde]"));
+        let (real, sector_id, _) = is_real_room("a-b-c-d-e-f-g-h-987[abcde]");
+        assert_eq!(true, real);
+        assert_eq!(987, sector_id);
     }
 
     #[test]
     fn test_3() {
-        assert_eq!((true, 404), is_real_room("not-a-real-room-404[oarel]"));
+        let (real, sector_id, _) = is_real_room("not-a-real-room-404[oarel]");
+        assert_eq!(true, real);
+        assert_eq!(404, sector_id);
     }
 
     #[test]
     fn test_4() {
-        assert_eq!((false, 200), is_real_room("totally-real-room-200[decoy]"));
+        let (real, sector_id, _) = is_real_room("totally-real-room-200[decoy]");
+        assert_eq!(false, real);
+        assert_eq!(200, sector_id);
     }
 }
