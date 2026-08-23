@@ -15,7 +15,7 @@ pub fn part2() {
 fn get_code(input: &str) -> Vec<String> {
     let mut result = Vec::new();
 
-    let keypad = vec![vec![1, 2, 3], vec![4, 5, 6], vec![7, 8, 9]];
+    let keypad = [vec![1, 2, 3], vec![4, 5, 6], vec![7, 8, 9]];
 
     let mut position = (1, 1);
 
@@ -24,26 +24,10 @@ fn get_code(input: &str) -> Vec<String> {
     for line in lines {
         for char in line.chars() {
             match char {
-                'L' => {
-                    if position.0 > 0 {
-                        position.0 -= 1
-                    }
-                }
-                'R' => {
-                    if position.0 < 2 {
-                        position.0 += 1
-                    }
-                }
-                'U' => {
-                    if position.1 > 0 {
-                        position.1 -= 1
-                    }
-                }
-                'D' => {
-                    if position.1 < 2 {
-                        position.1 += 1
-                    }
-                }
+                'L' if position.0 > 0 => position.0 -= 1,
+                'R' if position.0 < 2 => position.0 += 1,
+                'U' if position.1 > 0 => position.1 -= 1,
+                'D' if position.1 < 2 => position.1 += 1,
                 _ => (),
             };
         }
@@ -57,7 +41,7 @@ fn get_code(input: &str) -> Vec<String> {
 fn get_code_2(input: &str) -> Vec<String> {
     let mut result = Vec::new();
 
-    let keypad = vec![
+    let keypad = [
         vec!['X', 'X', '1', 'X', 'X'],
         vec!['X', '2', '3', '4', 'X'],
         vec!['5', '6', '7', '8', '9'],
@@ -72,25 +56,17 @@ fn get_code_2(input: &str) -> Vec<String> {
     for line in lines {
         for char in line.chars() {
             match char {
-                'L' => {
-                    if position.0 > 0 && keypad[position.1][position.0 - 1] != 'X' {
-                        position.0 -= 1
-                    }
+                'L' if position.0 > 0 && keypad[position.1][position.0 - 1] != 'X' => {
+                    position.0 -= 1
                 }
-                'R' => {
-                    if position.0 < 4 && keypad[position.1][position.0 + 1] != 'X'{
-                        position.0 += 1
-                    }
+                'R' if position.0 < 4 && keypad[position.1][position.0 + 1] != 'X' => {
+                    position.0 += 1
                 }
-                'U' => {
-                    if position.1 > 0 && keypad[position.1 - 1][position.0] != 'X' {
-                        position.1 -= 1
-                    }
+                'U' if position.1 > 0 && keypad[position.1 - 1][position.0] != 'X' => {
+                    position.1 -= 1
                 }
-                'D' => {
-                    if position.1 < 4 && keypad[position.1 + 1][position.0] != 'X'{
-                        position.1 += 1
-                    }
+                'D' if position.1 < 4 && keypad[position.1 + 1][position.0] != 'X' => {
+                    position.1 += 1
                 }
                 _ => (),
             };
