@@ -47,7 +47,7 @@ fn get_password_2(input: &str) -> String {
                 let index = index as usize;
 
                 if index < 8 && password.chars().nth(index).unwrap() == '_' {
-                    let password_character = hash_hex_chars.nth(0).unwrap().to_string();
+                    let password_character = hash_hex_chars.next().unwrap().to_string();
 
                     password.replace_range(index..=index, &password_character);
 

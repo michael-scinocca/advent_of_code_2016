@@ -92,8 +92,6 @@ fn is_real_room(room: &str) -> (bool, u32, String) {
     for (index, val) in highest_values[0..5].iter().enumerate() {
         let checksum_char = checksum_chars.next().unwrap();
 
-        //println!("{} -> {} | {}", val.0, val.1, checksum_char);
-
         if checksum.len() < index || checksum_char != *val.0 {
             is_real = false;
 
