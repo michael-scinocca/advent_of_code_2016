@@ -1,5 +1,6 @@
 use std::fmt::Display;
-use std::fs::read_to_string;
+use std::fs::File;
+use std::io::{BufRead, BufReader};
 
 struct Screen {
     screen_width: usize,
@@ -48,10 +49,12 @@ impl Screen {
         }
     }
 
-    pub fn process_input(&mut self, input: &str) {
-        for mut line in input.lines().map(|x| x.trim()) {
+    pub fn process_input(&mut self, input_reader: &mut impl BufRead) {
+        for mut line in input_reader.lines().map(|l| l.unwrap()) {
+            line = line.trim().to_string();
+
             if line.starts_with("rect") {
-                line = line.trim_start_matches("rect").trim();
+                line = line.trim_start_matches("rect").trim().to_string();
 
                 let mut parts = line.split('x');
 
@@ -62,7 +65,7 @@ impl Screen {
             }
 
             if line.starts_with("rotate row") {
-                line = line.trim_start_matches("rotate row y=").trim();
+                line = line.trim_start_matches("rotate row y=").trim().to_string();
 
                 let mut parts = line.split("by");
 
@@ -73,7 +76,10 @@ impl Screen {
             }
 
             if line.starts_with("rotate column") {
-                line = line.trim_start_matches("rotate column x=").trim();
+                line = line
+                    .trim_start_matches("rotate column x=")
+                    .trim()
+                    .to_string();
 
                 let mut parts = line.split("by");
 
@@ -131,9 +137,10 @@ impl Display for Screen {
 pub fn part1() {
     let mut screen = Screen::new(50, 6);
 
-    let input = read_to_string("data/day8.txt").unwrap();
+    let file = File::open("data/day8.txt").unwrap();
+    let mut reader = BufReader::new(file);
 
-    screen.process_input(&input);
+    screen.process_input(&mut reader);
 
     println!("{}", screen.get_on_count());
 }
@@ -141,15 +148,18 @@ pub fn part1() {
 pub fn part2() {
     let mut screen = Screen::new(50, 6);
 
-    let input = read_to_string("data/day8.txt").unwrap();
+    let file = File::open("data/day8.txt").unwrap();
+    let mut reader = BufReader::new(file);
 
-    screen.process_input(&input);
+    screen.process_input(&mut reader);
 
     println!("{}", screen);
 }
 
 #[cfg(test)]
 mod tests {
+    use std::io::Cursor;
+
     use super::*;
 
     #[test]
@@ -187,13 +197,15 @@ mod tests {
     fn test_2() {
         let mut screen = Screen::new(7, 3);
 
-        screen.process_input(
+        let mut reader = BufReader::new(Cursor::new(
             r"
             rect 3x2
             rotate column x=1 by 1
             rotate row y=0 by 4
             rotate column x=1 by 1",
-        );
+        ));
+
+        screen.process_input(&mut reader);
 
         assert_eq!(0b0100101, screen.lines[0]);
         assert_eq!(0b1010000, screen.lines[1]);
