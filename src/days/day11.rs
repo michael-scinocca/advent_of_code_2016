@@ -191,7 +191,28 @@ pub fn part1() {
     println!("{}", steps);
 }
 
-pub fn part2() {}
+pub fn part2() {
+    let layout = Layout::new(vec![
+        Part::new(PartType::Generator, "E", 1),
+        Part::new(PartType::Microchip, "E", 1),
+        Part::new(PartType::Generator, "D", 1),
+        Part::new(PartType::Microchip, "D", 1),
+        Part::new(PartType::Generator, "T", 1),
+        Part::new(PartType::Microchip, "T", 1),
+        Part::new(PartType::Generator, "P", 1),
+        Part::new(PartType::Generator, "S", 1),
+        Part::new(PartType::Microchip, "P", 2),
+        Part::new(PartType::Microchip, "S", 2),
+        Part::new(PartType::Generator, "PR", 3),
+        Part::new(PartType::Microchip, "PR", 3),
+        Part::new(PartType::Generator, "R", 3),
+        Part::new(PartType::Microchip, "R", 3),
+    ]);
+
+    let steps = layout.run();
+
+    println!("{}", steps);
+}
 
 #[cfg(test)]
 mod tests {
