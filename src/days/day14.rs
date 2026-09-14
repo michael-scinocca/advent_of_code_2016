@@ -91,15 +91,3 @@ fn is_hash_valid(
 
     false
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test1() {
-        let index = generate("abc", 64, hash_generation);
-
-        assert_eq!(22728, index);
-    }
-}

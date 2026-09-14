@@ -41,9 +41,9 @@ pub fn part1() {
             num_positions: 3,
         },
     ];
-    
+
     let time = check_disks(&mut disks);
-    
+
     println!("{}", time);
 }
 
@@ -78,26 +78,22 @@ pub fn part2() {
             num_positions: 11,
         },
     ];
-    
+
     let time = check_disks(&mut disks);
-    
+
     println!("{}", time);
 }
 
-fn check_disks(disks: &mut Vec<Disk>) -> u64 {
+fn check_disks(disks: &mut [Disk]) -> u64 {
     let mut time = 0;
 
     loop {
-        let mut ticks = 1;
+        let mut check_disks = disks.to_owned();
 
-        let mut check_disks = disks.clone();
-
-        for disk in &mut check_disks {
+        for (ticks, disk) in (1..).zip(check_disks.iter_mut()) {
             for _ in 0..ticks {
                 disk.tick();
             }
-
-            ticks += 1;
         }
 
         if check_disks.iter().all(|d| d.position == 0) {
