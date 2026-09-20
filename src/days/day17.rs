@@ -101,7 +101,7 @@ fn run_navigation_long(input: &str) -> u32 {
 
     let mut paths = Vec::new();
 
-    while let Some((position, path)) = queue.pop_front(){
+    while let Some((position, path)) = queue.pop_front() {
         if position.x == 3 && position.y == 3 {
             paths.push(path.clone());
             continue;
