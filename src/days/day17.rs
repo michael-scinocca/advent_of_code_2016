@@ -6,7 +6,11 @@ pub fn part1() {
     println!("{}", path);
 }
 
-pub fn part2() {}
+pub fn part2() {
+    let longest = run_navigation_long("qljzarfv");
+
+    println!("{}", longest);
+}
 
 #[derive(Clone, Copy, Eq, PartialEq, Hash, Debug)]
 struct Position {
@@ -88,28 +92,68 @@ fn run_navigation(input: &str) -> String {
     }
 }
 
+fn run_navigation_long(input: &str) -> u32 {
+    let position = Position { x: 0, y: 0 };
+
+    let mut queue = VecDeque::new();
+
+    queue.push_back((position, String::new()));
+
+    let mut paths = Vec::new();
+
+    while let Some((position, path)) = queue.pop_front(){
+        if position.x == 3 && position.y == 3 {
+            paths.push(path.clone());
+            continue;
+        }
+
+        let next_moves: Vec<(Position, String)> = get_next_moves(input, &path)
+            .into_iter()
+            .filter_map(|m| position.translate(m, 3))
+            .collect();
+
+        for next_move in next_moves.iter() {
+            let mut move_path = path.clone();
+            move_path.push_str(&next_move.1);
+
+            queue.push_back((next_move.0, move_path));
+        }
+    }
+
+    paths.iter().map(|p| p.len()).max().unwrap() as u32
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn test1() {
-        let path = run_navigation("ihgpwlah");
+        let input = "ihgpwlah";
+        let path = run_navigation(input);
+        let longest = run_navigation_long(input);
 
         assert_eq!(path, "DDRRRD");
+        assert_eq!(longest, 370);
     }
 
     #[test]
     fn test2() {
-        let path = run_navigation("kglvqrro");
+        let input = "kglvqrro";
+        let path = run_navigation(input);
+        let longest = run_navigation_long(input);
 
         assert_eq!(path, "DDUDRLRRUDRD");
+        assert_eq!(longest, 492);
     }
 
     #[test]
     fn test3() {
-        let path = run_navigation("ulqzkmiv");
+        let input = "ulqzkmiv";
+        let path = run_navigation(input);
+        let longest = run_navigation_long(input);
 
         assert_eq!(path, "DRURDRUDDLLDLUURRDULRLDUUDDDRR");
+        assert_eq!(longest, 830);
     }
 }
