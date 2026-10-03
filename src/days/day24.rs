@@ -5,7 +5,7 @@ pub fn part1() {
 
     let (map, goals) = construct_map(&input);
 
-    let moves = find_lowest_moves(&map, &goals);
+    let moves = find_lowest_moves(&map, &goals, false);
 
     println!("{}", moves);
 }
@@ -62,7 +62,7 @@ fn run_navigation(map: &[Vec<u8>], x: usize, y: usize, goal: (usize, usize)) -> 
     }
 }
 
-fn find_lowest_moves(map: &[Vec<u8>], goals: &[Goal]) -> u32 {
+fn find_lowest_moves(map: &[Vec<u8>], goals: &[Goal], return_to_start: bool) -> u32 {
     let mut move_graph: HashMap<(u8, u8), Trip> = HashMap::new();
 
     for i in 0..goals.len() {
@@ -73,7 +73,7 @@ fn find_lowest_moves(map: &[Vec<u8>], goals: &[Goal]) -> u32 {
 
             if move_graph.contains_key(&(goals[j].id, goals[i].id)) {
                 let trip = move_graph.get(&(goals[j].id, goals[i].id)).unwrap().clone();
-                
+
                 move_graph.insert(
                     (goals[i].id, goals[j].id),
                     Trip {
@@ -101,7 +101,14 @@ fn find_lowest_moves(map: &[Vec<u8>], goals: &[Goal]) -> u32 {
 
     let mut trips = Vec::new();
 
-    get_all_trips(&move_graph, 0, goals.len(), &mut vec![(0, 0)], &mut trips);
+    get_all_trips(
+        &move_graph,
+        0,
+        goals.len(),
+        &mut vec![(0, 0)],
+        &mut trips,
+        return_to_start,
+    );
 
     *trips.iter().min().unwrap()
 }
@@ -112,9 +119,13 @@ fn get_all_trips(
     total_ids: usize,
     trip: &mut Vec<(u8, u32)>,
     trips: &mut Vec<u32>,
+    return_to_start: bool,
 ) {
-    let links: Vec<&Trip> = move_graph.values().filter(|e| e.start_id == current_id).collect();
-    
+    let links: Vec<&Trip> = move_graph
+        .values()
+        .filter(|e| e.start_id == current_id)
+        .collect();
+
     for link in &links {
         if trip.iter().any(|e| e.0 == link.end_id) {
             continue;
@@ -123,8 +134,17 @@ fn get_all_trips(
         trip.push((link.end_id, link.moves));
 
         if trip.len() == total_ids {
-            let trip_total: u32 = trip.iter().map(|l| l.1).sum();
-            
+            let mut trip_total: u32 = trip.iter().map(|l| l.1).sum();
+
+            if return_to_start {
+                let return_trip = move_graph
+                    .values()
+                    .find(|l| l.start_id == link.end_id && l.end_id == 0)
+                    .unwrap();
+
+                trip_total += return_trip.moves;
+            }
+
             trips.push(trip_total);
 
             trip.pop();
@@ -132,7 +152,14 @@ fn get_all_trips(
             continue;
         }
 
-        get_all_trips(move_graph, link.end_id, total_ids, trip, trips);
+        get_all_trips(
+            move_graph,
+            link.end_id,
+            total_ids,
+            trip,
+            trips,
+            return_to_start,
+        );
     }
 
     trip.pop();
@@ -184,7 +211,15 @@ fn construct_map(input: &str) -> (Vec<Vec<u8>>, Vec<Goal>) {
     (map, goals)
 }
 
-pub fn part2() {}
+pub fn part2() {
+    let input = std::fs::read_to_string("data/day24.txt").unwrap();
+
+    let (map, goals) = construct_map(&input);
+
+    let moves = find_lowest_moves(&map, &goals, true);
+
+    println!("{}", moves);
+}
 
 #[cfg(test)]
 mod tests {
@@ -202,7 +237,7 @@ mod tests {
 
         let (map, goals) = construct_map(input);
 
-        let moves = find_lowest_moves(&map, &goals);
+        let moves = find_lowest_moves(&map, &goals, false);
 
         assert_eq!(14, moves);
     }
